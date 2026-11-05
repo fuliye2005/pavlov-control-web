@@ -19,9 +19,69 @@
       "sha256": "7871af5e4a904a5857e5886492a3c022f8c35fe784d4b8f6f53139d64a501a64"
     },
     {
+      "path": "docs/FRONTEND-CHANGES.md",
+      "bytes": 5269,
+      "sha256": "a3fa1060b2538ad94487a9dafb272105326bb8d544e1ca02bdeac9b2184e9420"
+    },
+    {
       "path": "docs/HANDOFF.md",
       "bytes": 3162,
       "sha256": "8122d884cfafcc979822a3ae1d516620216808f0a3cb5a5590458b37ea38f94c"
+    },
+    {
+      "path": "docs/previews/desktop-control.jpg",
+      "bytes": 32035,
+      "sha256": "49fc35959ff3b15dabb791a185e54bb9bd8f48604902cb98de69b9e760096397"
+    },
+    {
+      "path": "docs/previews/desktop-sequence.jpg",
+      "bytes": 24798,
+      "sha256": "3aed39b54c411c351323e7a76fb0509018da8b13510308237929ee94033955c5"
+    },
+    {
+      "path": "docs/previews/device-mockup-A-cozmo-eyes.jpg",
+      "bytes": 50689,
+      "sha256": "93e86fd3f182ca16a137c13daa30507a7c9670e95c300c95f8fb4e0e79c8bda3"
+    },
+    {
+      "path": "docs/previews/device-mockup-B-stackchan-dog.jpg",
+      "bytes": 46247,
+      "sha256": "1efbcb0a0715422ca8174152c7ec540f552e5097636382c11696e99e82807d80"
+    },
+    {
+      "path": "docs/previews/dog-face-in-page.jpg",
+      "bytes": 43593,
+      "sha256": "5fe2503b778ee83f4a13d9518b9808c42964bc6f65497281598326829bc23fa5"
+    },
+    {
+      "path": "docs/previews/dog-face-states.jpg",
+      "bytes": 48689,
+      "sha256": "66a53d6b84459efef4451bd577a0b38c7e89b05764fc19e7a8b4040e769df903"
+    },
+    {
+      "path": "docs/previews/dog-nose-states.png",
+      "bytes": 59868,
+      "sha256": "2cc734765374e27bdaa8fd5f4c0ba464012e4d807f02ca2c2eb3de555d4f7f65"
+    },
+    {
+      "path": "docs/previews/dog-nose-status-card.jpg",
+      "bytes": 42996,
+      "sha256": "aae52308d541d58028978471dd6b1543672b66a3c2658d8413235e1eb3b02ce5"
+    },
+    {
+      "path": "docs/previews/mobile-control.jpg",
+      "bytes": 89045,
+      "sha256": "14e92a813431c0ad80b08d004a0e36c32d35016683ea67a631229d3be410b495"
+    },
+    {
+      "path": "docs/previews/mobile-device.jpg",
+      "bytes": 43965,
+      "sha256": "a9081453a3d0f31e6db2db3d9c1282970e772977bc49ef2999abaed79f9b4d23"
+    },
+    {
+      "path": "docs/previews/mobile-sequence.jpg",
+      "bytes": 76846,
+      "sha256": "929ee4578c19301125b9eb0c1df0963a1255eb52ab47e9999e54e1f53fe04b1c"
     },
     {
       "path": "docs/VOICE-PLANNING.md",
@@ -85,8 +145,8 @@
     },
     {
       "path": "robot-dog/firmware/device-service/main/control.html",
-      "bytes": 80009,
-      "sha256": "03be3b8e86e2726c4c9a7f0bd145839432b30493ce8676fa9637c52f77f32f54"
+      "bytes": 100580,
+      "sha256": "a55e70055bb382cde4b3ff748b7440d52401d688a90f79e9b9d57ea41c1937b6"
     },
     {
       "path": "robot-dog/firmware/device-service/main/controller_ota.c",
@@ -292,6 +352,21 @@
       "path": "robot-dog/firmware/shared/supply_profile.h",
       "bytes": 1597,
       "sha256": "39b60d91b25bb625aecbf0200c32f89004756d14bdf5583d403858df7e5e78fb"
+    },
+    {
+      "path": "tools/mock-device/mock-device.ps1",
+      "bytes": 60524,
+      "sha256": "3591c996911a3b167a4e48166c48680b1ae77921b2908e13d9fdd0f6e2bb48b3"
+    },
+    {
+      "path": "tools/mock-device/README.md",
+      "bytes": 3598,
+      "sha256": "abbc1d7b588b78d17d55849c7737cb8912798373a7f078bf15df9c1ef47b8cf0"
+    },
+    {
+      "path": "tools/mock-device/start-mock.cmd",
+      "bytes": 189,
+      "sha256": "16f1898e95a3639accdb0b48d8c8307a0264a872a6bb8a83e06eb01905032985"
     }
   ]
 }
