@@ -1,0 +1,10 @@
+private/
+**/api_token.h
+**/cloud_credentials.h
+**/wifi_credentials.h
+.env
+.env.*
+node_modules/
+build/
+dist/
+*.log

@@ -1,0 +1,271 @@
+{
+  "date": "2026-11-05",
+  "scope": "frontend handoff; backend files are read-only contract references",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 124,
+      "sha256": "eb280ee3b3f0cdbafd40c3109d34cd69f07d6b2fe15cb2ec77160186a13fefed"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 909,
+      "sha256": "610703626c6c723370f5bf8c1394db32129f84de7442cd36e858997796013234"
+    },
+    {
+      "path": "docs/HANDOFF.md",
+      "bytes": 3083,
+      "sha256": "e50d9a75e5b0795416e057830587b7dd666ba30173f1773b2e917b10c86928e4"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1836,
+      "sha256": "cdbb12825914032a1a4449c120e4800478714a3f9e2df247004e4c3094d9ad4e"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/ble_service.c",
+      "bytes": 29172,
+      "sha256": "e6acf66c50e8290be85688b83615d267a86a6c0b6cc348a2e914a713f2393533"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/ble_service.h",
+      "bytes": 421,
+      "sha256": "e87e5dc4d55faf2bcdb5780fd9be15b3597f06f4cb3d7c57b48cb4d94a626a4a"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/board_controls.c",
+      "bytes": 4804,
+      "sha256": "0da1e1dc0fc29491ef89c0b69d3dc8e6fc6825bd181d643937b01895f513b32c"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/board_controls.h",
+      "bytes": 149,
+      "sha256": "23dffe0d373ac01e68710d3e8e3b728bd3796755d7b23fbc2db5bea71c2ba526"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/camera_service.c",
+      "bytes": 15925,
+      "sha256": "5c4d2f28923760c6ff4baea32457438cdb612953cc96743a2cc528746188790b"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/camera_service.h",
+      "bytes": 294,
+      "sha256": "8adfdb5db317970f452f6f456806a877388694ae02bd43f5abee3fae602bbbc0"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/cloud_dialog.c",
+      "bytes": 69517,
+      "sha256": "27c2703ece40ec22121830f1a80b79fe2f8b1fc38cc1c25d60126a1c7b09943b"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/cloud_dialog.h",
+      "bytes": 774,
+      "sha256": "81ec6a58544faaa0d6452874bb55285747e40fb376571b998914b4fb35161439"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/companion_memory.c",
+      "bytes": 6113,
+      "sha256": "fe40e244380462f4873d88f3c154f1337f499c0be513617408422518d545a735"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/companion_memory.h",
+      "bytes": 301,
+      "sha256": "9f74ae6a4ef34857db26f4c3316fe1632b18e0157791c7f368e77bb991dbb6fa"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/control.html",
+      "bytes": 80208,
+      "sha256": "c7a34ed929ba97551d68910f249c4362864fc74a7243ad4abf752febd26f2ff8"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/controller_ota.c",
+      "bytes": 9424,
+      "sha256": "bafd989fe20053f255d009b6c9e2b56494985e7ee1ea52ef9adaeca3d540a6ef"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/controller_ota.h",
+      "bytes": 224,
+      "sha256": "044dd702c1a1c610b8d469950b848f4bdcb4c2b07628fff3ef53cd957884c3ab"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/countdown_service.c",
+      "bytes": 4421,
+      "sha256": "2737f448e52b096de4ee746c4d7d3b1d73b4664f957dfa102eeca835bf70571c"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/countdown_service.h",
+      "bytes": 550,
+      "sha256": "2058f24a8544b8534d409e7c114252125fef50db9bc8b5351380a76fcb7d535c"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/device_api.c",
+      "bytes": 36415,
+      "sha256": "57e6551828cc55681161a9ab263dad8e8282218bfaef81d4fd65dcbaf395bb51"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/device_api.h",
+      "bytes": 80,
+      "sha256": "ac955b012b6c3461af5dbf74d31bd9fd870c681d82fcd2760b97dec27374bac8"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/display_service.c",
+      "bytes": 18303,
+      "sha256": "ba9c56e34f273acdf5ede3765438555d55b6b9ee93aaa3f92f1fa5c5871eaf3b"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/display_service.h",
+      "bytes": 101,
+      "sha256": "efbc074536526a9fc8910a1eafa8b562665ee90d00d50fc5202106ef8bcdc7d6"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/face_ui.c",
+      "bytes": 1429,
+      "sha256": "167e2856b22a8e296f5dfe7a80b9044eacae96b32a836893bf38690a556e57f0"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/face_ui.h",
+      "bytes": 548,
+      "sha256": "a30c01ba326d62165e0a603335f84a33c4847725e52e127cbee16cc1aaaf60a1"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/interaction.c",
+      "bytes": 4204,
+      "sha256": "c5c9a1fb55f5365e430fd510caefa6e8f7241ee2d5810a7e7569fd1d7a753f03"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/interaction.h",
+      "bytes": 395,
+      "sha256": "05db3a6af10f416b73b3d205b9e58d104dfd232bfe41aa729bc9f92f5bb9d56f"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/motion_bridge.c",
+      "bytes": 79887,
+      "sha256": "a3fede08a1efc7ffa5767650697b6d1df946c585faf68a32d7265f9820f0d573"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/motion_bridge.h",
+      "bytes": 2569,
+      "sha256": "50323ee4d70b88b9f37f2472f2deda41fcd465db320725ef07c94487b65d23cd"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/ota_service.c",
+      "bytes": 13392,
+      "sha256": "2341936e24c2ae00b63e88566572a7d5209c57804d782dd708f0ee9ffdca494d"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/ota_service.h",
+      "bytes": 346,
+      "sha256": "5ef4984e9608ca3be56772b96eef832145fbed79ebc9fd7fb5cefe6e0b654e71"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/riddle_service.c",
+      "bytes": 1551,
+      "sha256": "77b6bbfb257cd94123fac2ea1f5f20c6a2be034df5c60bce888ccf85b290d6f1"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/riddle_service.h",
+      "bytes": 280,
+      "sha256": "979b6ccc3f01d1d0d7187e945062721b5bb384b5cc128e1bd3cbd3d7acb39939"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/rtc_service.c",
+      "bytes": 2132,
+      "sha256": "2c8a058dafc3d22e8035eb5fc170374cb337744ea5ae5884238e5984d019d3f6"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/rtc_service.h",
+      "bytes": 236,
+      "sha256": "c1af9ca0cb6e9d025823f58942a9022d829effba36f5553aa762b1ec7f669ed2"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/user_profile.c",
+      "bytes": 7683,
+      "sha256": "d9e4082b5eaad710ffdebba4b0f2c52b88bfdd01bcfe55d0c191a1850e76ca2b"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/user_profile.h",
+      "bytes": 462,
+      "sha256": "2ff868506ac973b193a6ac7524ada5713f5acb4157f378f49556ed4160d57179"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/user_settings.c",
+      "bytes": 8665,
+      "sha256": "921e43dd051d701887dd29f02e6eb9be915677642bfa8b5225e70ba5a11c0789"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/user_settings.h",
+      "bytes": 455,
+      "sha256": "114aade6c4a9b37277bfbe5b283a46668537d39acf6f70bee663ae01ef88d767"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_intent.c",
+      "bytes": 11905,
+      "sha256": "8cfffb5b7a5675ae0b3e552e9b643ba57b1ee5f7773f6e00066c5e3fb332579e"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_intent.h",
+      "bytes": 671,
+      "sha256": "9b24863112942f193ceeff4db9668b6cb268c9af70a2ccc92b8de5b6fcad1354"
+    },
+    {
+      "path": "robot-dog/firmware/shared/action_catalog.h",
+      "bytes": 5735,
+      "sha256": "692d3ba009c5d31173bfb849e6276acd626ca09c3387240e65a6a848c9fcb46f"
+    },
+    {
+      "path": "robot-dog/firmware/shared/ble_state_view.h",
+      "bytes": 2394,
+      "sha256": "94b91e0a8cc50e1e2e0ea419cb5d5035a667ecaadd3588eb3243fa4bd071fa45"
+    },
+    {
+      "path": "robot-dog/firmware/shared/compass_math.h",
+      "bytes": 9656,
+      "sha256": "4d34882266584e464fc2f6df8cc5d12c22bcad6df3d0c54d26ddcc5a423a5214"
+    },
+    {
+      "path": "robot-dog/firmware/shared/handling_policy.h",
+      "bytes": 1822,
+      "sha256": "78c28179ab1e41320009cbc6d7addaced118a4f8ca194ba5924efb4f5992bfe0"
+    },
+    {
+      "path": "robot-dog/firmware/shared/pose_geometry.h",
+      "bytes": 4202,
+      "sha256": "3437ba9bc9e98d228e423ec02b415313016ff392948c60d1e6d4410cdb3ab64f"
+    },
+    {
+      "path": "robot-dog/firmware/shared/posture_policy.h",
+      "bytes": 1461,
+      "sha256": "260e651a0a20fab8a2e71ed59150800342fb45f276edf48e5f38e5683387a2e5"
+    },
+    {
+      "path": "robot-dog/firmware/shared/power_history.h",
+      "bytes": 2104,
+      "sha256": "10b8f6b4f9cc104141d8660435422b55c35bc37ee31547e1bd4c27223d456734"
+    },
+    {
+      "path": "robot-dog/firmware/shared/power_monitor.h",
+      "bytes": 2229,
+      "sha256": "e9ce7c883f813f7fbf6a97aef387899a1188c79234bec2a58bb529885cdadb8d"
+    },
+    {
+      "path": "robot-dog/firmware/shared/rtc_calendar.h",
+      "bytes": 3358,
+      "sha256": "1f4e8d77ce2848aee3fc256a3fe9eb9b7ae7b19774902da8d8bf8005132fe8e6"
+    },
+    {
+      "path": "robot-dog/firmware/shared/sensor_profile.h",
+      "bytes": 2539,
+      "sha256": "d29f93fa8d32ad237eab7559682830f7ed97f4f37fa8046fea4bbbd7147af9f1"
+    },
+    {
+      "path": "robot-dog/firmware/shared/supply_profile.h",
+      "bytes": 1597,
+      "sha256": "39b60d91b25bb625aecbf0200c32f89004756d14bdf5583d403858df7e5e78fb"
+    }
+  ],
+  "credential_value_scan": "passed; credential headers excluded",
+  "device_versions": {
+    "esp32": "0.35.0",
+    "stm32": "0.6.6"
+  }
+}
