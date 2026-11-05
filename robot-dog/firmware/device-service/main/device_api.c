@@ -489,7 +489,7 @@ static esp_err_t api(httpd_req_t *req)
         if(!strcmp(req->uri,"/api/v1/actions"))return actions(req);
         if(!strcmp(req->uri,"/api/v1/motion/stop")){
             if(req->content_len!=0)return error_reply(req,400,"stop_requires_empty_body");
-            motion_bridge_stop();cJSON *j=cJSON_CreateObject();cJSON_AddStringToObject(j,"state","stop_requested");
+            cloud_dialog_command("stop",NULL,false);cJSON *j=cJSON_CreateObject();cJSON_AddStringToObject(j,"state","stop_requested");
             cJSON_AddBoolToObject(j,"controller_acknowledged",false);return json_reply(req,j,202);
         }
     }

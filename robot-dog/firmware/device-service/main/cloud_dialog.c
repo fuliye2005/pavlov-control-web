@@ -6,6 +6,9 @@
 #include "rtc_service.h"
 #include "wifi_provision.h"
 #include "voice_intent.h"
+#include "voice_sequence.h"
+#include "voice_plan.h"
+#include "../../shared/action_catalog.h"
 #include "user_settings.h"
 #include "interaction.h"
 #include "user_profile.h"
@@ -96,6 +99,13 @@ static unsigned voice_motion_requests,voice_motion_finished,voice_stop_requests;
 static voice_intent last_intent;
 static char last_motion_id[49],last_motion_state[40]="none";
 static char heard[1024],answer[768];
+static bool sequence_running;
+static unsigned sequence_total,sequence_completed;
+static char sequence_actions[VOICE_SEQUENCE_MAX][24];
+static int sequence_speeds[VOICE_SEQUENCE_MAX],sequence_strengths[VOICE_SEQUENCE_MAX],sequence_repeats[VOICE_SEQUENCE_MAX];
+static const char *sequence_result="idle",*sequence_source="none";
+static voice_sequence *model_sequence;
+static unsigned planning_failures;
 typedef struct {char user[1024],answer[768];char previous_user[3][1024],previous_answer[3][768];voice_intent explicit_action;} dialog_history;
 static dialog_history real_history,simulation_history;
 static dialog_history *history=&real_history;
@@ -441,8 +451,9 @@ static int language_model_once(voice_intent *intent)
 {
     cJSON *j=cJSON_CreateObject();cJSON_AddStringToObject(j,"model","deepseek-flash");
     cJSON *messages=cJSON_AddArrayToObject(j,"messages");
-    add_message(messages,"system","你是中文机器狗伙伴巴甫洛夫，温和、机灵、简短自然。直接回应当前话题，除非被问姓名不重复介绍自己，不追问任务，不说好我来执行、执行开始或执行结束，不声称动作已完成。仅输出一个JSON对象，且只有action、reply、repeats、speed、strength、emotion。reply不超过60个汉字，普通聊天action=none且reply非空；明确动作口令reply可以为空。repeats整数1至3，speed为slow/normal/fast，strength整数25至100。动作：jump跳跃、shake_leg抖腿（仅明确要求才执行）、none不动、wag摇尾巴、handshake握手、stand站立、squat蹲下、lie_down趴下、stretch伸展、step踏步、rock_fb前后摇、rock_lr左右摇、forward前进、backward后退、turn_left左转、turn_right右转、stop停止、status报告实时状态、direction查询实时磁方向、time查询机内时间、greet打招呼组合、show动作展示组合。优先根据当前明确口令选动作；帮助示例、引用、假设、否定和能力询问均不执行。仅陪伴模式且聊天动作开启时可按聊天情绪选择wag/stretch/stand/squat/lie_down中的一个短动作，也可none；不自主行走转向或组合。自主表达一律1次、slow、25。不得编造精确距离、动作时长或电量百分比。实时方向问题选direction，不在reply里猜测方位。实时日期/时间问题选time，不在reply里猜时间；查询不会校时或设置提醒。明确组合仅一套，不自行组合。不要输出代码块或额外字段。");
+    add_message(messages,"system","你是中文机器狗伙伴巴甫洛夫，温和、机灵、简短自然。直接回应当前话题，除非被问姓名不重复介绍自己，不追问任务，不说好我来执行、执行开始或执行结束，不声称动作已完成。仅输出一个JSON对象，普通回复字段只有action、reply、repeats、speed、strength、emotion；连续多个动作额外使用steps数组。reply不超过60个汉字，普通聊天action=none且reply非空；明确动作口令reply可以为空。repeats整数1至3，speed为slow/normal/fast，strength整数25至100。动作：sequence连续动作计划、jump跳跃、shake_leg抖腿（仅明确要求才执行）、none不动、wag摇尾巴、handshake握手、stand站立、squat蹲下、lie_down趴下、stretch伸展、step踏步、rock_fb前后摇、rock_lr左右摇、forward前进、backward后退、turn_left左转、turn_right右转、stop停止、status报告实时状态、direction查询实时磁方向、time查询机内时间、greet打招呼组合、show动作展示组合。明确口令无需加名字，单独说前进、后退、左转、右转也可执行。优先根据当前明确口令选动作；帮助示例、引用、假设、否定和能力询问均不执行。仅陪伴模式且聊天动作开启时可按聊天情绪选择wag/stretch/stand/squat/lie_down中的一个短动作，也可none；不自主行走转向或组合。自主表达一律1次、slow、25。不得编造精确距离、动作时长或电量百分比。实时方向问题选direction，不在reply里猜测方位。实时日期/时间问题选time，不在reply里猜时间；查询不会校时或设置提醒。明确组合仅一套，不自行组合。不要输出代码块或额外字段。");
     add_message(messages,"system","emotion必须为calm、happy、curious、puzzled、low之一，用于屏幕表情，和action独立；开心/感谢用happy，好奇用curious，没听懂用puzzled，温和共情低落用low，普通回应calm。表情不代表身体动作，不因emotion触发运动。不为网络错误伪造情绪。不要在reply里念出emotion字段。");
+    add_message(messages,"system","用户一句话明确要求多个有先后顺序的动作时，必须action=sequence，并增加steps数组，严格保持原顺序，不省略、不替换不支持的步骤；reply为空，顶层repeats=1。steps有2至6项，每项且只有action、repeats、speed、strength；action只能是实际单个身体动作或最后一项stop，不能是none/sequence/greet/show/status/direction/time，不可嵌套。未指定次数每步repeats=1，未指定速度/幅度使用当前默认值；明确的次数仅允许1至3。计划预计总时长不超过30秒。自然说法先走向前方/退回来/往左拐/往右拐/抬右前爪和我握手应分别理解为forward/backward/turn_left/turn_right/handshake，连接词和你先/帮我等不改变动作顺序。任何一项不支持或含糊，整句action=none，steps不输出，reply简短说明不能完整执行，绝不只执行其中一部分。否定、假设、引用、讨论或能力询问均action=none。示例：先往前挪一挪，再向左拐一下，最后和我握手，应输出action=sequence及forward、turn_left、handshake三项，而不是只输出最后一项。");
     user_preferences preferences=user_settings_get();char defaults[240];
     snprintf(defaults,sizeof(defaults),"当前默认动作speed=%s、strength=%d，未指定时使用这些值。设置变更只由设备本地口令处理；你不能修改设置，也不能声称已修改音量、速度或幅度设置。",preferences.default_speed==1?"slow":preferences.default_speed==3?"fast":"normal",preferences.default_strength);
     add_message(messages,"system",defaults);
@@ -465,8 +476,14 @@ static int language_model_once(voice_intent *intent)
     if(!consolidate_system(messages)){cJSON_Delete(j);return ESP_ERR_NO_MEM;}
     char current_heard[1024];xSemaphoreTake(guard,portMAX_DELAY);unsigned epoch=history_epoch;
     snprintf(current_heard,sizeof(current_heard),"%s",heard);
-    for(int k=2;k>=0;k--)if(history->previous_user[k][0]){add_message(messages,"user",history->previous_user[k]);add_assistant_reply(messages,history->previous_answer[k]);}
-    if(history->user[0]){add_message(messages,"user",history->user);add_assistant_reply(messages,history->answer);}
+    /* Empty control acknowledgements and dry-run diagnostics are not semantic
+     * chat replies. Feeding them back makes the model imitate diagnostic mode. */
+    for(int k=2;k>=0;k--)if(history->previous_user[k][0]&&history->previous_answer[k][0]&&!strstr(history->previous_answer[k],"这次模拟不执行动作")){
+        add_message(messages,"user",history->previous_user[k]);add_assistant_reply(messages,history->previous_answer[k]);
+    }
+    if(history->user[0]&&history->answer[0]&&!strstr(history->answer,"这次模拟不执行动作")){
+        add_message(messages,"user",history->user);add_assistant_reply(messages,history->answer);
+    }
     add_message(messages,"user",current_heard);xSemaphoreGive(guard);cJSON_AddNumberToObject(j,"max_tokens",400);
     cJSON *format=cJSON_AddObjectToObject(j,"response_format");cJSON_AddStringToObject(format,"type","json_object");
     cJSON *thinking=cJSON_AddObjectToObject(j,"thinking");cJSON_AddStringToObject(thinking,"type","disabled");
@@ -494,7 +511,9 @@ static int language_model_once(voice_intent *intent)
             if(item->string&&!strcmp(item->string,"emotion"))++emotion_count;
         char chosen_emotion[16];snprintf(chosen_emotion,sizeof(chosen_emotion),"%s",emotion_valid?mood:"calm");
         cJSON_DeleteItemFromObjectCaseSensitive(plan,"emotion");
-        bool valid=emotion_valid&&emotion_count==1&&voice_intent_parse(plan,intent);
+        bool valid=emotion_valid&&emotion_count==1&&model_sequence&&voice_plan_parse(plan,intent,model_sequence);
+        bool multiple=strstr(current_heard,"然后")||strstr(current_heard,"接着")||strstr(current_heard,"之后")||strstr(current_heard,"最后")||(strstr(current_heard,"先")&&strstr(current_heard,"再"));
+        if(valid&&multiple&&strcmp(intent->action,"sequence")&&strcmp(intent->action,"none"))valid=false;
         if(strcmp(str(choice,"finish_reason"),"stop")||!valid){
             err=ESP_ERR_INVALID_RESPONSE;
             bool content=false;for(const char *p=text;*p;++p)if((unsigned char)*p>32){content=true;break;}
@@ -510,6 +529,21 @@ static int language_model_once(voice_intent *intent)
             if(strcmp(intent->action,"none")&&strcmp(intent->action,"stop")&&strcmp(intent->action,"status")&&strcmp(intent->action,"direction")&&strcmp(intent->action,"time"))chat_expression_filter_reply(intent->reply);
             if(!strstr(current_heard,"慢")&&!strstr(current_heard,"快")&&!strstr(current_heard,"速度"))intent->speed=preferences.default_speed;
             if(!strstr(current_heard,"幅")&&!strstr(current_heard,"力度")&&!strstr(current_heard,"轻轻")&&!strstr(current_heard,"百分")&&!strchr(current_heard,'%'))intent->strength=preferences.default_strength;
+            if(!strcmp(intent->action,"sequence")){
+                if(chat_expression_text_blocked(current_heard)||strstr(current_heard,"怎么")||strstr(current_heard,"如何")||strstr(current_heard,"为什么")||strstr(current_heard,"吗")||strstr(current_heard,"？")||strchr(current_heard,'?')){
+                    voice_intent_clear(intent);intent->local=true;snprintf(intent->reply,sizeof(intent->reply),"这次不执行动作。");model_sequence->count=0;
+                }else{
+                    model_sequence->duration_ms=0;
+                    for(unsigned i=0;i<model_sequence->count;++i){
+                        voice_intent *step=&model_sequence->steps[i];
+                        if(!strstr(current_heard,"慢")&&!strstr(current_heard,"快")&&!strstr(current_heard,"速度"))step->speed=preferences.default_speed;
+                        if(!strstr(current_heard,"幅")&&!strstr(current_heard,"力度")&&!strstr(current_heard,"轻轻")&&!strstr(current_heard,"百分")&&!strchr(current_heard,'%'))step->strength=preferences.default_strength;
+                        const dog_action *a=dog_action_by_name(step->action);
+                        if(a)model_sequence->duration_ms+=dog_action_duration(a,step->repeats,step->speed);
+                    }
+                    if(model_sequence->duration_ms>VOICE_SEQUENCE_MAX_MS){model_sequence->count=0;err=ESP_ERR_INVALID_RESPONSE;}
+                }
+            }
             if(strcmp(intent->action,"none")&&strcmp(intent->action,"stop")&&voice_intent_denied(current_heard)){
                 strcpy(intent->action,"none");snprintf(intent->reply,sizeof(intent->reply),"好，这次不执行动作。");
             }
@@ -555,8 +589,13 @@ static int reply_text(const char *text)
     xSemaphoreGive(guard);
     return text[0]&&!text_only?say(text):0;
 }
+static int run_voice_sequence(const voice_sequence *plan,bool execute_motion,const char *source);
 static int act_on_intent(const voice_intent *requested,bool execute_motion)
 {
+    if(!strcmp(requested->action,"sequence")){
+        if(!model_sequence||model_sequence->count<2)return ESP_ERR_INVALID_RESPONSE;
+        return run_voice_sequence(model_sequence,execute_motion,"model");
+    }
     /* Explicit actions use the requested percentage of the action envelope.
        Autonomous expressions retain their independent small-motion policy. */
     voice_intent bounded=*requested;
@@ -647,10 +686,6 @@ static int act_on_intent(const voice_intent *requested,bool execute_motion)
         motion_result(NULL,confirmed?"stopped":"stop_unconfirmed");
         return reply_text(confirmed?"动作控制器已停止。":"已发出停止指令，暂时没有收到控制器确认。");
     }
-    if(voice_intent_locomotion(intent->action)&&!voice_intent_named(heard)){
-        motion_result("","name_required");
-        return reply_text("行走或转向时，请先叫我巴甫洛夫，再说动作口令。");
-    }
     if(!strcmp(intent->action,"greet")||!strcmp(intent->action,"show")){
         const char *greet[]={"stand","wag","handshake"};
         const char *show[]={"stand","stretch","squat","stand"};
@@ -696,11 +731,71 @@ static int act_on_intent(const voice_intent *requested,bool execute_motion)
     }
     motion_bridge_stop();motion_result(NULL,"completion_timeout");return reply_text("动作确认超时，我已发出停止指令。");
 }
+static int run_voice_sequence(const voice_sequence *plan,bool execute_motion,const char *source)
+{
+    int error=0;
+    xSemaphoreTake(guard,portMAX_DELAY);
+    sequence_total=plan->count;sequence_completed=0;sequence_running=true;
+    sequence_result="running";sequence_source=source;
+    memset(sequence_actions,0,sizeof(sequence_actions));
+    for(unsigned i=0;i<plan->count;++i){
+        snprintf(sequence_actions[i],sizeof(sequence_actions[i]),"%s",plan->steps[i].action);
+        sequence_speeds[i]=plan->steps[i].speed;sequence_strengths[i]=plan->steps[i].strength;sequence_repeats[i]=plan->steps[i].repeats;
+    }
+    xSemaphoreGive(guard);
+    if(interaction_mode()==PAVLOV_REST){
+        xSemaphoreTake(guard,portMAX_DELAY);sequence_running=false;sequence_result="rest_blocked";xSemaphoreGive(guard);
+        motion_result("","rest_blocked");return reply_text("当前是休息模式，动作未执行。");
+    }
+    bool keep_history=record_history;record_history=false;
+    for(unsigned i=0;i<plan->count;++i){
+        if(cancelled||!online||turn_epoch!=history_epoch||interaction_mode()==PAVLOV_REST){error=ESP_ERR_INVALID_STATE;break;}
+        error=act_on_intent(&plan->steps[i],execute_motion);
+        xSemaphoreTake(guard,portMAX_DELAY);
+        bool finished=execute_motion?(!strcmp(last_motion_state,"output_finished")||!strcmp(last_motion_state,"stopped")):!strcmp(last_motion_state,"dry_run");
+        if(!error&&finished)sequence_completed=i+1;
+        xSemaphoreGive(guard);
+        if(error||!finished){if(!error)error=ESP_FAIL;break;}
+    }
+    xSemaphoreTake(guard,portMAX_DELAY);
+    sequence_running=false;
+    sequence_result=error?(cancelled?"cancelled":"aborted"):(execute_motion?"finished":"dry_run");
+    record_history=keep_history;
+    if(!error&&keep_history&&!cancelled&&turn_epoch==history_epoch){
+        for(int k=2;k>0;k--){strcpy(history->previous_user[k],history->previous_user[k-1]);strcpy(history->previous_answer[k],history->previous_answer[k-1]);}
+        strcpy(history->previous_user[0],history->user);strcpy(history->previous_answer[0],history->answer);
+        snprintf(history->user,sizeof(history->user),"%s",heard);snprintf(history->answer,sizeof(history->answer),"%s",answer);
+    }
+    history->explicit_action.action[0]=0; /* Never replay a partial old plan. */
+    xSemaphoreGive(guard);
+    if(error){motion_bridge_stop();motion_result(NULL,"sequence_aborted");}
+    else motion_result(NULL,execute_motion?"sequence_finished":"sequence_dry_run");
+    return error;
+}
+static bool try_voice_sequence(bool execute_motion,int *error)
+{
+    voice_sequence *plan=heap_caps_calloc(1,sizeof(*plan),MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
+    if(!plan){*error=ESP_ERR_NO_MEM;return true;}
+    int parsed=voice_sequence_parse(heard,plan);
+    if(parsed==VOICE_SEQUENCE_NONE||(parsed==VOICE_SEQUENCE_INVALID&&!voice_intent_denied(heard))){free(plan);return false;}
+    if(parsed==VOICE_SEQUENCE_VALID)*error=run_voice_sequence(plan,execute_motion,"local");
+    else{
+        xSemaphoreTake(guard,portMAX_DELAY);
+        sequence_running=false;sequence_total=sequence_completed=0;sequence_result="invalid";sequence_source="local";
+        memset(sequence_actions,0,sizeof(sequence_actions));voice_intent_clear(&last_intent);answer[0]=0;
+        xSemaphoreGive(guard);
+        motion_result("","sequence_invalid");*error=reply_text("这次不执行这些动作。");
+    }
+    if(!*error){count(&turns);last_turn_us=esp_timer_get_time();}
+    free(plan);return true;
+}
+
 static void task(void *unused)
 {
     (void)unused;bool greeted=false;dialog_job job;
     pcm=heap_caps_malloc(PCM_CAP,MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
-    if(!pcm){status("memory_unavailable",ESP_ERR_NO_MEM);vTaskDelete(NULL);return;}
+    model_sequence=heap_caps_calloc(1,sizeof(*model_sequence),MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT);
+    if(!pcm||!model_sequence){status("memory_unavailable",ESP_ERR_NO_MEM);vTaskDelete(NULL);return;}
     esp_sntp_config_t time_config=ESP_NETIF_SNTP_DEFAULT_CONFIG("ntp.aliyun.com");esp_netif_sntp_init(&time_config);
     for(;;){
         if(ota_service_busy()){vTaskDelay(pdMS_TO_TICKS(100));continue;}
@@ -756,6 +851,7 @@ static void task(void *unused)
                 }
                 if(!err&&heard[0]){
                     if(!text_only)count(&asr_ok);
+                    if(!try_voice_sequence(!queued||job.execute_motion,&err)){
                     voice_intent intent;
                     char settings_reply[401];
                     int old_mode=interaction_mode();
@@ -791,11 +887,17 @@ static void task(void *unused)
                         char *end=strstr(s,"。");if(end)*end=0;
                         if((!strcmp(s,"再来一次")||!strcmp(s,"刚才那个")||!strcmp(s,"再做一次"))&&history->explicit_action.action[0]){intent=history->explicit_action;intent.local=true;local=true;}
                     }
-                    if(!local){status("thinking",0);err=language_model(&intent);if(!err)count(&llm_ok);}
-                    if(!err&&!local&&strcmp(intent.action,"none")&&strcmp(intent.action,"stop")&&strcmp(intent.action,"status")&&strcmp(intent.action,"direction")&&strcmp(intent.action,"time"))
+                    if(!local){status("thinking",0);err=language_model(&intent);if(!err)count(&llm_ok);
+                        else if(err==ESP_ERR_INVALID_RESPONSE){
+                            count(&planning_failures);voice_intent_clear(&intent);intent.local=true;local=true;
+                            snprintf(intent.reply,sizeof(intent.reply),"这句话没有规划清楚，这次没有执行动作。");err=0;
+                        }
+                    }
+                    if(!err&&!local&&strcmp(intent.action,"sequence")&&strcmp(intent.action,"none")&&strcmp(intent.action,"stop")&&strcmp(intent.action,"status")&&strcmp(intent.action,"direction")&&strcmp(intent.action,"time"))
                         intent.expression=!chat_expression_explicit_request(heard,intent.action);
                     if(!err&&!local&&interaction_mode()==PAVLOV_ACTION&&!strcmp(intent.action,"none"))snprintf(intent.reply,sizeof(intent.reply),"动作模式待命。");
                     if(!err){err=act_on_intent(&intent,!queued||job.execute_motion);if(!err){count(&turns);last_turn_us=esp_timer_get_time();}}
+                    }
                     }
                 }
             }
@@ -956,7 +1058,26 @@ cJSON *cloud_dialog_state(void)
     cJSON_AddNumberToObject(j,"internal_heap_largest_block_bytes",heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT));
     cJSON_AddNumberToObject(j,"max_utterance_seconds",9);cJSON_AddBoolToObject(j,"barge_in",false);
     cJSON_AddBoolToObject(j,"wake_word_required",false);cJSON_AddBoolToObject(j,"motion_control_from_dialog",true);
-    cJSON_AddBoolToObject(j,"locomotion_requires_name",true);
+    cJSON_AddBoolToObject(j,"locomotion_requires_name",false);
+    cJSON *seq=cJSON_AddObjectToObject(j,"command_sequence");
+    cJSON_AddBoolToObject(seq,"active",sequence_running);
+    cJSON_AddStringToObject(seq,"result",sequence_result);
+    cJSON_AddStringToObject(seq,"source",sequence_source);
+    cJSON_AddBoolToObject(seq,"model_planning",true);
+    cJSON_AddNumberToObject(seq,"planning_failures",planning_failures);
+    cJSON_AddNumberToObject(seq,"total",sequence_total);
+    cJSON_AddNumberToObject(seq,"completed",sequence_completed);
+    cJSON_AddNumberToObject(seq,"pending",sequence_running?sequence_total-sequence_completed:0);
+    cJSON_AddNumberToObject(seq,"max_actions",VOICE_SEQUENCE_MAX);
+    cJSON_AddNumberToObject(seq,"max_duration_ms",VOICE_SEQUENCE_MAX_MS);
+    cJSON *steps=cJSON_AddArrayToObject(seq,"actions");
+    for(unsigned i=0;i<sequence_total;++i)cJSON_AddItemToArray(steps,cJSON_CreateString(sequence_actions[i]));
+    cJSON *parameters=cJSON_AddArrayToObject(seq,"steps");
+    for(unsigned i=0;i<sequence_total;++i){
+        cJSON *step=cJSON_CreateObject();cJSON_AddStringToObject(step,"action",sequence_actions[i]);
+        cJSON_AddStringToObject(step,"speed",sequence_speeds[i]==1?"slow":sequence_speeds[i]==3?"fast":"normal");
+        cJSON_AddNumberToObject(step,"strength",sequence_strengths[i]);cJSON_AddNumberToObject(step,"repeats",sequence_repeats[i]);cJSON_AddItemToArray(parameters,step);
+    }
     cJSON *routines=cJSON_AddArrayToObject(j,"voice_routines");
     cJSON_AddItemToArray(routines,cJSON_CreateString("greet"));cJSON_AddItemToArray(routines,cJSON_CreateString("show"));
     cJSON_AddBoolToObject(j,"voice_status_query",true);cJSON_AddBoolToObject(j,"local_motion_modifiers",true);

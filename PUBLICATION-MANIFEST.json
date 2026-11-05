@@ -1,6 +1,12 @@
 {
   "date": "2026-11-05",
-  "scope": "frontend handoff; backend files are read-only contract references",
+  "scope": "frontend handoff; backend files are read-only references",
+  "device_versions": {
+    "esp32": "0.37.1",
+    "stm32": "0.6.6"
+  },
+  "text_line_endings": "LF",
+  "credential_value_scan": "passed; credential headers excluded",
   "files": [
     {
       "path": ".gitignore",
@@ -14,13 +20,18 @@
     },
     {
       "path": "docs/HANDOFF.md",
-      "bytes": 3048,
-      "sha256": "3543865b3a527fdcb89934b619c5236bf57ae83c20c25ac2de7201c19fa1bd89"
+      "bytes": 3162,
+      "sha256": "8122d884cfafcc979822a3ae1d516620216808f0a3cb5a5590458b37ea38f94c"
+    },
+    {
+      "path": "docs/VOICE-PLANNING.md",
+      "bytes": 2193,
+      "sha256": "259e1a6faeebec9e36fb63966fc885732ebb7f0b5bb0c8b97e276bf2fc7831e4"
     },
     {
       "path": "README.md",
       "bytes": 1801,
-      "sha256": "b9a261782a8520e5f47066d0e5eb6902de1b7e8c7ca226b7a6d00a48707db8c5"
+      "sha256": "932d82afc924c3684ba0a6626380da3fae04461d73ce52a2abf716d3a480e5cb"
     },
     {
       "path": "robot-dog/firmware/device-service/main/ble_service.c",
@@ -54,8 +65,8 @@
     },
     {
       "path": "robot-dog/firmware/device-service/main/cloud_dialog.c",
-      "bytes": 68545,
-      "sha256": "daf88b49b89dab515d06ac78178fc60f73b91e4803019ebed3ea58876f8949d2"
+      "bytes": 78132,
+      "sha256": "d2784d16a1a6a419c10803f0c67c36a1cd82526f7b0d84e525aa76c8c96264aa"
     },
     {
       "path": "robot-dog/firmware/device-service/main/cloud_dialog.h",
@@ -99,8 +110,8 @@
     },
     {
       "path": "robot-dog/firmware/device-service/main/device_api.c",
-      "bytes": 35893,
-      "sha256": "5dc415fee46bbe94d74298cf29508f3f51bb9e5c4bf3846b9a152d5fec0a883a"
+      "bytes": 35912,
+      "sha256": "7aeaad516bfd5f8df94b4bfeb94ffdb45b9c0caf6cbd2a5ca763e91fe3757d14"
     },
     {
       "path": "robot-dog/firmware/device-service/main/device_api.h",
@@ -199,13 +210,33 @@
     },
     {
       "path": "robot-dog/firmware/device-service/main/voice_intent.c",
-      "bytes": 11760,
-      "sha256": "5999b9cc5ac43a37d624409fa094a927988df3b3e2c87535241881984e8bb4f2"
+      "bytes": 11822,
+      "sha256": "18c1664ef6e7aa53b499845e070c7542615da7c4d4a89a213fc63e35a404c154"
     },
     {
       "path": "robot-dog/firmware/device-service/main/voice_intent.h",
       "bytes": 654,
       "sha256": "31b0176eebc80c90e428ce9db41abd239fb60046bb37e7df93a9dcf14ae2506a"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_plan.c",
+      "bytes": 2345,
+      "sha256": "7ebd42ae26bbb7a586f091a0c1ff59ec80cb30e7efbd60869aacc29c02fb9eef"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_plan.h",
+      "bytes": 346,
+      "sha256": "9ced053ff696662032728d1347417da5d95718f44adb273d816ad5a7b0a0b601"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_sequence.c",
+      "bytes": 2926,
+      "sha256": "2c9acc63a367c624bc957bdd8c585653d60d13cfd4955e4a66bb484f64958c95"
+    },
+    {
+      "path": "robot-dog/firmware/device-service/main/voice_sequence.h",
+      "bytes": 496,
+      "sha256": "e3a5ea61c04f30200df5d13c49f3d4585667a5c7ef0430da9294579ba28bad91"
     },
     {
       "path": "robot-dog/firmware/shared/action_catalog.h",
@@ -262,11 +293,5 @@
       "bytes": 1597,
       "sha256": "39b60d91b25bb625aecbf0200c32f89004756d14bdf5583d403858df7e5e78fb"
     }
-  ],
-  "credential_value_scan": "passed; credential headers excluded",
-  "device_versions": {
-    "esp32": "0.35.0",
-    "stm32": "0.6.6"
-  },
-  "text_line_endings": "LF"
+  ]
 }

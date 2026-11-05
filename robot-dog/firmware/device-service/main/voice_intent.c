@@ -40,7 +40,7 @@ static void normalized(const char *text,char *out,size_t cap)
     out[n]=0;
 }
 bool voice_intent_named(const char *text)
-{char s[1024];normalized(text,s,sizeof(s));return strstr(s,"pavlov")||strstr(s,"巴甫洛夫")||strstr(s,"帕夫洛夫");}
+{char s[1024];normalized(text,s,sizeof(s));return strstr(s,"pavlov")||strstr(s,"巴甫洛夫")||strstr(s,"巴夫洛夫")||strstr(s,"帕夫洛夫");}
 bool voice_intent_locomotion(const char *a)
 {return !strcmp(a,"forward")||!strcmp(a,"backward")||!strcmp(a,"turn_left")||!strcmp(a,"turn_right");}
 bool voice_intent_denied(const char *text)
@@ -61,7 +61,7 @@ const char *voice_intent_label(const char *a)
 bool voice_intent_local(const char *text,voice_intent *i)
 {
     voice_intent_clear(i);char buf[1024];normalized(text,buf,sizeof(buf));char *s=buf;
-    const char *prefixes[]={"pavlov","巴甫洛夫","帕夫洛夫","请","帮我","给我","麻烦你","麻烦"};
+    const char *prefixes[]={"pavlov","巴甫洛夫","巴夫洛夫","帕夫洛夫","请","帮我","给我","麻烦你","麻烦","你","首先","先"};
     for(unsigned round=0;round<4;++round){bool found=false;
         for(unsigned k=0;k<sizeof(prefixes)/sizeof(prefixes[0]);++k){size_t len=strlen(prefixes[k]);if(!strncmp(s,prefixes[k],len)){s+=len;found=true;break;}}
         if(!found)break;
